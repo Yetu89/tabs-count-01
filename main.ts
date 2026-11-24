@@ -131,8 +131,13 @@ function validate(text: string): void {
   // Digits only: the bounty demands one number in digits and nothing
   // else. Letters, punctuation, spaces and signs are all rejected here,
   // so "128 tabs", "128!", "+128" or "12 8" can never slip through.
-  if (!/^[0-9]+$/.test(text)) {
-    throw new Error("entry must contain digits 0-9 only");
+  // The error names the first offending character so a failure is
+  // diagnosable instead of just "invalid".
+  const badChar = [...text].find((ch) => ch < "0" || ch > "9");
+  if (badChar !== undefined) {
+    throw new Error(
+      `entry must contain digits 0-9 only, found ${JSON.stringify(badChar)}`,
+    );
   }
   // Control characters are invisible in most editors but visible to the
   // scorer — tabs, NUL bytes and ANSI escapes are all rejected here
